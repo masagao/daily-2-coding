@@ -6,9 +6,11 @@ use Slim\Factory\AppFactory;
 require __DIR__ . '/../vendor/autoload.php';
 
 $app = AppFactory::create();
-$app->get('/', function(Request $request, Response $response) {
-    $response = $response->withHeader('Content-Type', 'text/plain');
-    $response->getBody()->write("Hello World");
+$app->get('/', function (Request $request, Response $response) {
+    $response = $response->withHeader('Content-Type', 'application/json');
+    $response->getBody()->write(json_encode([
+        'message' => "Hello World",
+    ]));
     return $response;
 });
 $app->run();
