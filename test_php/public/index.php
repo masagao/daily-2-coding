@@ -1,13 +1,14 @@
 <?php
+use App\Controller\HomeController;
 use DI\Bridge\Slim\Bridge;
-use Psr\Http\Message\ResponseInterface as Response;
+use DI\ContainerBuilder;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$app = Bridge::create();
-$app->get('/', function (Response $response) {
-    $response = $response->withHeader('Content-Type', 'text/html');
-    $response->getBody()->write("Hello World");
-    return $response;
-});
+$builder = new ContainerBuilder();
+$builder->addDefinitions(require __DIR__ . '/../config/config.php');
+
+$app = Bridge::create($builder->build());
+$app->get('/', [HomeController::class, 'index']);
+$app->addErrorMiddleware(true, true, true);
 $app->run();
