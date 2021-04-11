@@ -2,6 +2,14 @@ require "./minruby"
 
 def evaluate(tree, genv, lenv)
     case tree[0]
+    when "stmts"
+        i = 1
+        last = nil
+        while tree[i]
+            last = evaluate(tree[i], genv, lenv)
+            i = i + 1
+        end
+        last
     when "func_def"
         # genv[func_name] = [flag, params, args]
         genv[tree[1]] = ["user_defined", tree[2], tree[3]]
@@ -10,7 +18,7 @@ def evaluate(tree, genv, lenv)
         i = 0
         while tree[i + 2]
             args[i] = evaluate(tree[i + 2], genv, lenv)
-            i += 1
+            i = i + 1
         end
         mhd = genv[tree[1]]
         if mhd[0] == "builtin"
@@ -21,20 +29,41 @@ def evaluate(tree, genv, lenv)
             i = 0
             while params[i]
                 new_lenv[params[i]] = args[i]
-                i += 1
+                i = i + 1
             end
             evaluate(mhd[2], genv, new_lenv)
-        end
-    when "stmts"
-        i = 1
-        while tree[i]
-            evaluate(tree[i], genv, lenv)
-            i += 1
         end
     when "var_assign"
         lenv[tree[1]] = evaluate(tree[2], genv, lenv)
     when "var_ref"
         lenv[tree[1]]
+    when "ary_new"
+        ary = []
+        i = 0
+        while tree[i + 1]
+            ary[i] = evaluate(tree[i + 1], genv, lenv)
+            i = i + 1
+        end
+        ary
+    when "ary_ref"
+        ary = evaluate(tree[1], genv, lenv)
+        idx = evaluate(tree[2], genv, lenv)
+        ary[idx]
+    when "ary_assign"
+        ary = evaluate(tree[1], genv, lenv)
+        idx = evaluate(tree[2], genv, lenv)
+        val = evaluate(tree[3], genv, lenv)
+        ary[idx] = val
+    when "hash_new"
+        hsh = {}
+        i = 0
+        while tree[i + 1]
+            key = evaluate(tree[i + 1], genv, lenv)
+            val = evaluate(tree[i + 2], genv, lenv)
+            hsh[key] = val
+            i = i + 2
+        end
+        hsh
     when "if"
         evaluate(tree[1], genv, lenv) ? evaluate(tree[2], genv, lenv) : evaluate(tree[3], genv, lenv)
     when "while"
@@ -61,19 +90,19 @@ def evaluate(tree, genv, lenv)
     when "**"
         evaluate(tree[1], genv, lenv) ** evaluate(tree[2], genv, lenv)
     when "=="
-        evaluate(tree[1], genv, lenv) == evaluate(tree[2], genv, lenv) ? true : false
+        evaluate(tree[1], genv, lenv) == evaluate(tree[2], genv, lenv)
     when "!="
-        evaluate(tree[1], genv, lenv) != evaluate(tree[2], genv, lenv) ? true : false
+        evaluate(tree[1], genv, lenv) != evaluate(tree[2], genv, lenv)
     when "<"
-        evaluate(tree[1], genv, lenv) < evaluate(tree[2], genv, lenv) ? true : false
+        evaluate(tree[1], genv, lenv) < evaluate(tree[2], genv, lenv)
     when ">"
-        evaluate(tree[1], genv, lenv) > evaluate(tree[2], genv, lenv) ? true : false
+        evaluate(tree[1], genv, lenv) > evaluate(tree[2], genv, lenv)
     when "<="
-        evaluate(tree[1], genv, lenv) <= evaluate(tree[2], genv, lenv) ? true : false
+        evaluate(tree[1], genv, lenv) <= evaluate(tree[2], genv, lenv)
     when ">="
-        evaluate(tree[1], genv, lenv) >= evaluate(tree[2], genv, lenv) ? true : false
+        evaluate(tree[1], genv, lenv) >= evaluate(tree[2], genv, lenv)
     when "&&"
-        evaluate(tree[1], genv, lenv) && evaluate(tree[2], genv, lenv) ? true : false
+        evaluate(tree[1], genv, lenv) && evaluate(tree[2], genv, lenv)
     else
         pp(tree)
     end
@@ -82,14 +111,17 @@ end
 str = minruby_load()
 tree = minruby_parse(str)
 
-pp(tree)
+# pp(tree)
 
 genv = {
-    "p" => ["builtin", "p"],
-    "add" => ["builtin", "add"],
-    "fizzBuzz" => ["builtin", "fizzBuzz"]
+    "p"             => ["builtin", "p"],
+    "add"           => ["builtin", "add"],
+    "fizzBuzz"      => ["builtin", "fizzBuzz"],
+    "require"       => ["builtin", "require"],
+    "minruby_load"  => ["builtin", "minruby_load"],
+    "minruby_parse" => ["builtin", "minruby_parse"],
+    "minruby_call"  => ["builtin", "minruby_call"]
 }
-
 lenv = {}
 
 evaluate(tree, genv, lenv)

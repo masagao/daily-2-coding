@@ -188,6 +188,6 @@ def fizzBuzz(i, target)
 		else
 			p(i)
 		end
-		i += 1
+		i = i + 1
 	end
 end
