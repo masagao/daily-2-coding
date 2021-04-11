@@ -172,3 +172,22 @@ end
 def minruby_call(mhd, args)
 	send(mhd, *args)
 end
+
+def add(x, y)
+    x + y
+end
+
+def fizzBuzz(i, target)
+	while i <= target
+		if i % 3 == 0 && i % 5 == 0
+			p("FizzBuzz")
+		elsif i % 3 == 0
+			p("Fizz")
+		elsif i % 5 == 0
+			p("Buzz")
+		else
+			p(i)
+		end
+		i = i + 1
+	end
+end
