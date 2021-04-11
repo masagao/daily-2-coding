@@ -2,6 +2,9 @@ require "./minruby"
 
 def evaluate(tree, genv, lenv)
     case tree[0]
+    when "func_def"
+        # genv[func_name] = [flag, params, args]
+        genv[tree[1]] = ["user_defined", tree[2], tree[3]]
     when "func_call"
         args = []
         i = 0
@@ -13,7 +16,14 @@ def evaluate(tree, genv, lenv)
         if mhd[0] == "builtin"
             minruby_call(mhd[1], args)
         else
-
+            new_lenv = {}
+            params = mhd[1]
+            i = 0
+            while params[i]
+                new_lenv[params[i]] = args[i]
+                i += 1
+            end
+            evaluate(mhd[2], genv, new_lenv)
         end
     when "stmts"
         i = 1
@@ -40,7 +50,6 @@ def evaluate(tree, genv, lenv)
         tree[1]
     when "+"
         evaluate(tree[1], genv, lenv) + evaluate(tree[2], genv, lenv)
-        lenv["plus_count"] += 1
     when "-"
         evaluate(tree[1], genv, lenv) - evaluate(tree[2], genv, lenv)
     when "*"
@@ -81,6 +90,6 @@ genv = {
     "fizzBuzz" => ["builtin", "fizzBuzz"]
 }
 
-lenv = {"plus_count" => 0}
+lenv = {}
 
 evaluate(tree, genv, lenv)
