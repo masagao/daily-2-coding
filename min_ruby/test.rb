@@ -1,3 +1,5 @@
-p(1 + 2)
-p(6 + 7)
-p(40 + 2)
+plus_count = 0
+x = 1 + 2 + 3
+p(plus_count)
+x = 1 + 2 + 3
+p(plus_count)
