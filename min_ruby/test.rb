@@ -7,7 +7,7 @@ while i <= 100
   elsif i % 5 == 0
     p("Buzz")
   else
-   p(i)
+    p(i)
   end
   i = i + 1;
 end
